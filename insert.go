@@ -31,21 +31,21 @@ func (tree *bPlusTree) leafInsert(node *treeLeafNode, key, value interface{}) {
 	insert := tree.binarySearch(node.keys, key, node.size)
 	if insert > 0 {
 		// TODO:insert大于0 说明有key重复 后期要处理
-
 	} else {
 		insert = -insert - 1
 	}
-	if node.size+1 > tree.order {
-		split := tree.order / 2
-		//分成 左右两个节点 split之后全放在右边的节点里
-		if insert < split {
 
-		} else {
-
-		}
-
-	} else {
-		leafSimpleInsert(node, key, value, insert)
+	leafSimpleInsert(node, key, value, insert)
+	if node.size > tree.order {
+		split := node.size / 2
+		// 创建
+		rightLeaf := newLeafNode(tree.order)
+		// 拷贝
+		copyLeafNode(node, rightLeaf, split)
+		// link
+		node.link.addNext(rightLeaf.link)
+		// 绑定父节点
+		tree.leafBindParent(node, rightLeaf)
 	}
 }
 
@@ -57,4 +57,91 @@ func leafSimpleInsert(node *treeLeafNode, key, value interface{}, insert int) {
 	node.keys[insert] = key
 	node.data[insert] = value
 	node.size++
+}
+
+func copyLeafNode(ori, target *treeLeafNode, split int) {
+	j := 0
+	for i := split; i < len(ori.keys); i++ {
+		target.keys[j] = ori.keys[i]
+		target.data[j] = ori.data[i]
+		j++
+	}
+	target.size = j
+	ori.size = split
+}
+
+func (tree *bPlusTree) leafBindParent(left, right *treeLeafNode) {
+	if left.parent == nil && right.parent == nil {
+		parent := newNonLeafNode(tree.order)
+		parent.keys[0] = right.keys[0]
+		parent.subPtr[0] = left
+		parent.subPtr[1] = right
+
+		left.parent = parent
+		left.parentIndex = -1
+		right.parent = parent
+		right.parentIndex = 0
+
+		tree.root = parent
+
+	} else if left.parent != nil {
+		insert := left.parentIndex + 1
+		tree.nonLeafNodeInsert(left.parent, right.keys[0], right, insert)
+	}
+}
+
+func (tree *bPlusTree) nonLeafNodeInsert(parent *treeNonLeafNode, key, treeNode interface{}, insert int) {
+	for i := tree.order - 1; i >= insert; i-- {
+		if i == insert {
+			parent.keys[i] = key
+			parent.subPtr[i+1] = treeNode
+			parent.size++
+		} else {
+			parent.keys[i] = parent.keys[i-1]
+			parent.subPtr[i+1] = parent.keys[i]
+		}
+		if leaf, ok := parent.subPtr[i+1].(*treeLeafNode); ok {
+			leaf.parentIndex++
+		} else {
+			parent.subPtr[i+1].(*treeNonLeafNode).parentIndex++
+		}
+	}
+	if parent.size == tree.order {
+		split := tree.order / 2
+		right := newNonLeafNode(tree.order)
+		copyNonLeafNode(parent, right, split)
+		parent.link.addNext(right.link)
+	}
+}
+
+func copyNonLeafNode(left, right *treeNonLeafNode, split int) {
+	left.size = split
+	j := 0
+	for i := split; i < len(left.keys); i++ {
+		right.keys[j] = left.keys[i]
+		right.subPtr[j+1] = left.subPtr[i+1]
+		j++
+	}
+	right.size = j
+}
+
+func (tree *bPlusTree) bindNonLeafNode(left, right *treeNonLeafNode) {
+	if left.parent == nil && right.parent == nil {
+		parent := newNonLeafNode(tree.order)
+		parent.keys[0] = right.keys[0]
+		parent.subPtr[0] = left
+		parent.subPtr[1] = right
+		parent.size++
+
+		right.parent = parent
+		left.parent = parent
+		right.parentIndex = 0
+		left.parentIndex = -1
+
+		tree.root = parent
+
+	} else if left.parent != nil {
+		insert := left.parentIndex + 1
+		tree.nonLeafNodeInsert(left.parent, right.keys[0], right, insert)
+	}
 }

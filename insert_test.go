@@ -12,7 +12,10 @@ func Test_bPlusTree_Insert(t *testing.T) {
 		name  string
 	}
 	tree := InitBPlusTree(order, nil, Goods{}.price)
-	for i := 0; i < order; i++ {
+	for i := 0; i < order; i += 2 {
+		tree.Insert(i, &Goods{i, "商品 " + strconv.Itoa(i)})
+	}
+	for i := 1; i < order; i += 2 {
 		tree.Insert(i, &Goods{i, "商品 " + strconv.Itoa(i)})
 	}
 	tests := []struct {

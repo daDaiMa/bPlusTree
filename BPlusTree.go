@@ -19,15 +19,10 @@ type bPlusTree struct {
 }
 
 type nodeComm struct {
-	nodeType       NodeType
-	parentKeyIndex int
-	parent         *treeNonLeafNode
-	linkHead       *link
-	size           int //保存当前key的size
-}
-
-type treeNode struct {
-	nodeComm
+	parent      *treeNonLeafNode
+	parentIndex int
+	link        *link
+	size        int //保存当前key的size
 }
 
 type treeLeafNode struct {
@@ -57,11 +52,27 @@ func InitBPlusTree(order int, compareFunc func(a, b interface{}) int, keyExample
 func newLeafNode(order int) *treeLeafNode {
 	return &treeLeafNode{
 		nodeComm{
-			LEAF_NODE,
-			-1,
 			nil,
+			-1,
 			newLink(),
 			0},
+		make([]interface{}, order+1),
+		make([]interface{}, order+1),}
+	/*
+	 * 为啥要make order+1个空间呢 ？
+	 * 因为为了分裂方便
+	 */
+}
+
+func newNonLeafNode(order int) *treeNonLeafNode {
+	return &treeNonLeafNode{
+		nodeComm{
+			nil,
+			-1,
+			newLink(),
+			0,
+		},
 		make([]interface{}, order),
-		make([]interface{}, order),}
+		make([]interface{}, order+1),
+	}
 }

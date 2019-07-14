@@ -9,12 +9,12 @@ type link struct {
 }
 
 /*
- * 初始化link,自己的前后均指向自己
+ * 初始化link, 感觉不需要循环链表
  */
 func newLink() *link {
 	l := &link{}
-	l.pre = l
-	l.next = l
+	l.pre = nil
+	l.next = nil
 	return l
 }
 
@@ -22,18 +22,20 @@ func newLink() *link {
  * 把 add 添加到 l 前边
  */
 func (l *link) addPre(add *link) {
-	add.pre = l.pre
-	l.pre.next = add
-	add.next = l
-	l.pre = add
+
 }
 
 /*
  * 把 add 添加到 l 后边
  */
 func (l *link) addNext(add *link) {
-	l.next.pre = add
-	add.next = l.next
-	l.next = add
-	add.pre = l
+	if l.next == nil {
+		l.next = add
+		add.pre = l
+	} else {
+		l.next.pre = add
+		add.next = l.next
+		add.pre = l
+		l.next = add
+	}
 }
