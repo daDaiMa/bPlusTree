@@ -76,6 +76,7 @@ func (tree *bPlusTree) leafBindParent(left, right *treeLeafNode) {
 		parent.keys[0] = right.keys[0]
 		parent.subPtr[0] = left
 		parent.subPtr[1] = right
+		parent.size++
 
 		left.parent = parent
 		left.parentIndex = -1
@@ -91,11 +92,20 @@ func (tree *bPlusTree) leafBindParent(left, right *treeLeafNode) {
 }
 
 func (tree *bPlusTree) nonLeafNodeInsert(parent *treeNonLeafNode, key, treeNode interface{}, insert int) {
-	for i := tree.order - 1; i >= insert; i-- {
+	for i := parent.size; i >= insert; i-- {
 		if i == insert {
 			parent.keys[i] = key
 			parent.subPtr[i+1] = treeNode
 			parent.size++
+			if leaf, ok := treeNode.(*treeLeafNode); ok {
+				leaf.parent = parent
+				leaf.parentIndex = insert
+			} else {
+				leaf.parent = parent
+				treeNode.(*treeNonLeafNode).parentIndex = insert
+			}
+			break
+
 		} else {
 			parent.keys[i] = parent.keys[i-1]
 			parent.subPtr[i+1] = parent.keys[i]
@@ -111,6 +121,7 @@ func (tree *bPlusTree) nonLeafNodeInsert(parent *treeNonLeafNode, key, treeNode 
 		right := newNonLeafNode(tree.order)
 		copyNonLeafNode(parent, right, split)
 		parent.link.addNext(right.link)
+		tree.nonLeafNodeBindParent(parent, right)
 	}
 }
 
@@ -120,12 +131,19 @@ func copyNonLeafNode(left, right *treeNonLeafNode, split int) {
 	for i := split; i < len(left.keys); i++ {
 		right.keys[j] = left.keys[i]
 		right.subPtr[j+1] = left.subPtr[i+1]
+		if leaf, ok := right.subPtr[j+1].(*treeLeafNode); ok {
+			leaf.parent = right
+			leaf.parentIndex = j
+		} else {
+			right.subPtr[j+1].(*treeNonLeafNode).parent = right
+			right.subPtr[j+1].(*treeNonLeafNode).parentIndex = j
+		}
 		j++
 	}
 	right.size = j
 }
 
-func (tree *bPlusTree) bindNonLeafNode(left, right *treeNonLeafNode) {
+func (tree *bPlusTree) nonLeafNodeBindParent(left, right *treeNonLeafNode) {
 	if left.parent == nil && right.parent == nil {
 		parent := newNonLeafNode(tree.order)
 		parent.keys[0] = right.keys[0]

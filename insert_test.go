@@ -6,7 +6,7 @@ import (
 )
 
 func Test_bPlusTree_Insert(t *testing.T) {
-	order := 10
+	order := 5
 	type Goods struct {
 		price int
 		name  string
