@@ -101,18 +101,21 @@ func (tree *bPlusTree) nonLeafNodeInsert(parent *treeNonLeafNode, key, treeNode 
 				leaf.parent = parent
 				leaf.parentIndex = insert
 			} else {
-				leaf.parent = parent
+				treeNode.(*treeNonLeafNode).parent = parent
 				treeNode.(*treeNonLeafNode).parentIndex = insert
 			}
 			break
 
 		} else {
 			parent.keys[i] = parent.keys[i-1]
-			parent.subPtr[i+1] = parent.keys[i]
+			parent.subPtr[i+1] = parent.subPtr[i]
 		}
 		if leaf, ok := parent.subPtr[i+1].(*treeLeafNode); ok {
 			leaf.parentIndex++
 		} else {
+			if parent.subPtr[i+1] == nil {
+				continue
+			}
 			parent.subPtr[i+1].(*treeNonLeafNode).parentIndex++
 		}
 	}
