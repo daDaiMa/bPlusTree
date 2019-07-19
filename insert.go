@@ -43,7 +43,7 @@ func (tree *bPlusTree) leafInsert(node *treeLeafNode, key, value interface{}) {
 		// 拷贝
 		copyLeafNode(node, rightLeaf, split)
 		// link
-		node.link.addNext(rightLeaf.link)
+		addNext(&node.link, &rightLeaf.link)
 		// 绑定父节点
 		tree.leafBindParent(node, rightLeaf)
 	}
@@ -123,7 +123,7 @@ func (tree *bPlusTree) nonLeafNodeInsert(parent *treeNonLeafNode, key, treeNode 
 		split := tree.order / 2
 		right := newNonLeafNode(tree.order)
 		copyNonLeafNode(parent, right, split)
-		parent.link.addNext(right.link)
+		addNext(&parent.link,&right.link)
 		tree.nonLeafNodeBindParent(parent, right)
 	}
 }

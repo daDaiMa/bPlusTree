@@ -1,5 +1,7 @@
 package BplusTree
 
+import "fmt"
+
 func generateKeyBinarySearchFunc(compareFunc func(a, b interface{}) int, keyExample interface{}) func(data []interface{}, key interface{}, size int) int {
 	if compareFunc == nil {
 		switch keyExample.(type) {
@@ -54,4 +56,13 @@ func generateKeyBinarySearchFunc(compareFunc func(a, b interface{}) int, keyExam
 		//没找到 但是返回 最接近key且大于key的 位置下标 的相反数
 		return -low - 1
 	}
+}
+
+func Test_ptr() {
+	leafA := newLeafNode(10)
+	leafB := newLeafNode(10)
+	leafA.size = 100
+	leafB.size = 20
+	addNext(&leafA.link,&leafB.link)
+	fmt.Println(leafA.link.getLeaf().size)
 }

@@ -4,8 +4,8 @@ package BplusTree
  * 用于链接B➕树的同级节点
  */
 type link struct {
-	pre  *link
-	next *link
+	pre  **link
+	next **link
 }
 
 /*
@@ -19,23 +19,16 @@ func newLink() *link {
 }
 
 /*
- * 把 add 添加到 l 前边
- */
-func (l *link) addPre(add *link) {
-
-}
-
-/*
  * 把 add 添加到 l 后边
  */
-func (l *link) addNext(add *link) {
-	if l.next == nil {
-		l.next = add
-		add.pre = l
+func addNext(ori, add **link) {
+	if (*ori).next == nil {
+		(*ori).next = add
+		(*add).pre = ori
 	} else {
-		l.next.pre = add
-		add.next = l.next
-		add.pre = l
-		l.next = add
+		(*(*ori).next).pre = add
+		(*add).next = (*ori).next
+		(*add).pre = ori
+		(*ori).next = add
 	}
 }

@@ -1,5 +1,7 @@
 package BplusTree
 
+import "unsafe"
+
 type NodeType int
 
 const (
@@ -35,6 +37,24 @@ type treeNonLeafNode struct {
 	nodeComm
 	keys   []interface{}
 	subPtr []interface{} //仅两种可能 1.treeLeafNode 2.treeNonLeafNode
+}
+
+var leafFieldOffset uintptr
+var nonLeafFieldOffset uintptr
+
+func getLeaf(l **link) *treeLeafNode {
+	return (*treeLeafNode)(unsafe.Pointer(uintptr(unsafe.Pointer(l)) - leafFieldOffset))
+}
+
+func getNonLeaf(l **link) *treeNonLeafNode {
+	return (*treeNonLeafNode)(unsafe.Pointer(uintptr(unsafe.Pointer(l)) - nonLeafFieldOffset))
+}
+
+func init() {
+	dummy := &treeLeafNode{}
+	leafFieldOffset = uintptr(unsafe.Pointer(&dummy.link)) - uintptr(unsafe.Pointer(dummy))
+	nonLeafDummy := &treeNonLeafNode{}
+	nonLeafFieldOffset = uintptr(unsafe.Pointer(&nonLeafDummy.link)) - uintptr(unsafe.Pointer(nonLeafDummy))
 }
 
 /*
