@@ -32,3 +32,12 @@ func addNext(ori, add **link) {
 		(*ori).next = add
 	}
 }
+
+func (l *link) deleteSelf() {
+	if l.pre != nil {
+		(*l.pre).next = l.next
+	}
+	if l.next != nil {
+		(*l.next).pre = l.pre
+	}
+}

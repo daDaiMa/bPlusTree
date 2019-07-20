@@ -37,6 +37,7 @@ func (tree *bPlusTree) deleteFormLeaf(key interface{}, leaf *treeLeafNode) {
 			//选择左边的
 			if left.size+leaf.size <= tree.order {
 				//可以合并
+				tree.mergeToLeftLeaf(left, leaf)
 			} else {
 				//从左边借一个
 				shiftFromLeftLeaf(left, leaf)
@@ -45,6 +46,7 @@ func (tree *bPlusTree) deleteFormLeaf(key interface{}, leaf *treeLeafNode) {
 			//选择右边
 			if right.size+leaf.size <= tree.order {
 				//合并
+				tree.mergeToRightLeaf(leaf, right)
 			} else {
 				//从右边借一个
 				shiftFromRightLeaf(leaf, right)
@@ -63,19 +65,25 @@ func simpleDelete(leaf *treeLeafNode, index int) {
 }
 
 func makeSiblingChoice(left, right interface{}) bool {
-	if left == nil {
-		return false
-	}
-	if right == nil {
-		return true
-	}
 	switch left.(type) {
 	case *treeLeafNode:
+		if left.(*treeLeafNode) == nil {
+			return false
+		}
+		if right.(*treeLeafNode) == nil {
+			return true
+		}
 		if left.(*treeLeafNode).size > right.(*treeLeafNode).size {
 			return true
 		}
 		return false
 	case *treeNonLeafNode:
+		if left.(*treeNonLeafNode) == nil {
+			return false
+		}
+		if right.(*treeNonLeafNode) == nil {
+			return true
+		}
 		if left.(*treeNonLeafNode).size > right.(*treeNonLeafNode).size {
 			return true
 		}
@@ -115,7 +123,17 @@ func (tree *bPlusTree) mergeToLeftLeaf(left, leaf *treeLeafNode) {
 		left.data[left.size] = leaf.data[i]
 		left.size++
 	}
+	leaf.link.deleteSelf()
 	tree.deleteFromNonLeaf(leaf.parent, leaf.parentIndex)
+}
+func (tree *bPlusTree) mergeToRightLeaf(leaf, right *treeLeafNode) {
+	for i := 0; i < right.size; i++ {
+		leaf.keys[leaf.size] = right.keys[i]
+		leaf.data[leaf.size] = right.data[i]
+		leaf.size++
+	}
+	right.link.deleteSelf()
+	tree.deleteFromNonLeaf(right.parent, right.parentIndex)
 }
 
 func (tree *bPlusTree) deleteFromNonLeaf(nonLeaf *treeNonLeafNode, delete int) {
