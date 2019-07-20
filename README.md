@@ -7,7 +7,7 @@ key可以重复,我打算把key重复的元素用另外一种数据结构连接�
 
 目前就写了插入和查找，还没写删除  
 
-
+```
 //初始化一颗30阶的B+树 存放 Goods结构体，把price当作key, 也可以传入自定义的比价函数compareFunc 用于key的比较
 type Goods struct {
 		price int
@@ -15,3 +15,4 @@ type Goods struct {
 }  
 tree := BplusTree.InitBPlusTree(30, compareFunc, Goods{}.price)
 
+```
