@@ -1,6 +1,8 @@
 package BplusTree
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 type NodeType int
 
@@ -43,10 +45,16 @@ var leafFieldOffset uintptr
 var nonLeafFieldOffset uintptr
 
 func getLeaf(l **link) *treeLeafNode {
+	if l == nil {
+		return nil
+	}
 	return (*treeLeafNode)(unsafe.Pointer(uintptr(unsafe.Pointer(l)) - leafFieldOffset))
 }
 
 func getNonLeaf(l **link) *treeNonLeafNode {
+	if l == nil {
+		return nil
+	}
 	return (*treeNonLeafNode)(unsafe.Pointer(uintptr(unsafe.Pointer(l)) - nonLeafFieldOffset))
 }
 

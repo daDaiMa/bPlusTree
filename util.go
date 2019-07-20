@@ -1,7 +1,5 @@
 package BplusTree
 
-import "fmt"
-
 func generateKeyBinarySearchFunc(compareFunc func(a, b interface{}) int, keyExample interface{}) func(data []interface{}, key interface{}, size int) int {
 	if compareFunc == nil {
 		switch keyExample.(type) {
@@ -58,11 +56,3 @@ func generateKeyBinarySearchFunc(compareFunc func(a, b interface{}) int, keyExam
 	}
 }
 
-func Test_ptr() {
-	leafA := newLeafNode(10)
-	leafB := newLeafNode(10)
-	leafA.size = 100
-	leafB.size = 20
-	addNext(&leafA.link,&leafB.link)
-	fmt.Println(leafA.link.getLeaf().size)
-}
