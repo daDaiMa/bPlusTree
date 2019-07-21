@@ -65,6 +65,9 @@ func simpleDelete(leaf *treeLeafNode, index int) {
 		leaf.data[i-1] = leaf.data[i-1]
 	}
 	leaf.size--
+	if index == 0 && leaf.parent != nil && leaf.parentIndex != -1 {
+		leaf.parent.keys[leaf.parentIndex] = leaf.keys[0]
+	}
 }
 
 func makeSiblingChoice(left, right interface{}) bool {
@@ -271,5 +274,8 @@ func simpleDeleteFromNonLeaf(nonLeaf *treeNonLeafNode, delete int) {
 		case *treeNonLeafNode:
 			nonLeaf.subPtr[i+1].(*treeNonLeafNode).parentIndex = i
 		}
+	}
+	if delete == 0 && nonLeaf.parent != nil && nonLeaf.parentIndex != -1 {
+		nonLeaf.parent.keys[nonLeaf.parentIndex] = nonLeaf.keys[0]
 	}
 }
