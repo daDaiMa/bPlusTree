@@ -2,7 +2,7 @@ package BplusTree
 
 func (tree *bPlusTree) Delete(key interface{}) {
 	node := tree.root
-	if tree.root == nil {
+	if node == nil {
 		return
 	}
 	for {
@@ -186,6 +186,7 @@ func (tree *bPlusTree) mergeLeftNonLeaf(left, nonLeaf *treeNonLeafNode) {
 		}
 		left.size++
 	}
+	nonLeaf.link.deleteSelf()
 	tree.deleteFromNonLeaf(nonLeaf.parent, nonLeaf.parentIndex)
 }
 
@@ -203,12 +204,13 @@ func (tree *bPlusTree) mergeRightNonLeaf(nonLeaf, right *treeNonLeafNode) {
 		}
 		nonLeaf.size++
 	}
+	right.link.deleteSelf()
 	tree.deleteFromNonLeaf(right.parent, right.parentIndex)
 }
 
 func shiftFromRightNonLeaf(nonLeaf, right *treeNonLeafNode) {
 	nonLeaf.keys[nonLeaf.size] = right.keys[0]
-	nonLeaf.subPtr[nonLeaf.size+1] = right.keys[1]
+	nonLeaf.subPtr[nonLeaf.size+1] = right.subPtr[1]
 	switch nonLeaf.subPtr[nonLeaf.size+1].(type) {
 	case *treeNonLeafNode:
 		nonLeaf.subPtr[nonLeaf.size+1].(*treeNonLeafNode).parent = nonLeaf
@@ -221,7 +223,7 @@ func shiftFromRightNonLeaf(nonLeaf, right *treeNonLeafNode) {
 	right.size--
 	for i := 0; i < right.size; i++ {
 		right.keys[i] = right.keys[i+1]
-		right.subPtr[i+1] = right.keys[i+2]
+		right.subPtr[i+1] = right.subPtr[i+2]
 		switch right.subPtr[i+1].(type) {
 		case *treeLeafNode:
 			right.subPtr[i+1].(*treeLeafNode).parentIndex--
@@ -229,6 +231,7 @@ func shiftFromRightNonLeaf(nonLeaf, right *treeNonLeafNode) {
 			right.subPtr[i+1].(*treeNonLeafNode).parentIndex--
 		}
 	}
+	right.parent.keys[right.parentIndex] = right.keys[0]
 }
 
 func shiftFromLeftNonLeaf(left, nonLeaf *treeNonLeafNode) {

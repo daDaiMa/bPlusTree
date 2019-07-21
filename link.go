@@ -41,3 +41,4 @@ func (l *link) deleteSelf() {
 		(*l.next).pre = l.pre
 	}
 }
+

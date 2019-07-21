@@ -14,19 +14,18 @@ func (tree *bPlusTree) PrintSimply() {
 			for i := 0; i < leaf.size; i++ {
 				fmt.Print(leaf.keys[i], " ")
 			}
-			fmt.Printf("\t")
-		} else {
-			if node == nil {
-				continue
-			}
-			nonLeaf := node.(*treeNonLeafNode)
+			fmt.Printf("=")
+		} else if nonLeaf, ok := node.(*treeNonLeafNode); ok {
+
 			for i := 0; i < nonLeaf.size; i++ {
 				fmt.Print(nonLeaf.keys[i], " ")
 			}
-			fmt.Printf("\t")
+			fmt.Printf("=")
 			for i := 0; i <= nonLeaf.size; i++ {
 				child = append(child, nonLeaf.subPtr[i])
 			}
+		} else {
+			continue
 		}
 
 		if len(queue) == 0 {
