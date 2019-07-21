@@ -66,7 +66,6 @@ func simpleDelete(leaf *treeLeafNode, index int) {
 	}
 	leaf.size--
 	if index == 0 && leaf.parent != nil && leaf.parentIndex != -1 {
-		//leaf.parent.keys[leaf.parentIndex] = leaf.keys[0]
 		replaceRecursive(leaf.parent, leaf.parentIndex, leaf.keys[0])
 	}
 }
@@ -282,7 +281,6 @@ func simpleDeleteFromNonLeaf(nonLeaf *treeNonLeafNode, delete int) {
 		}
 	}
 	if delete == 0 && nonLeaf.parent != nil && nonLeaf.parentIndex != -1 {
-		//nonLeaf.parent.keys[nonLeaf.parentIndex] = nonLeaf.keys[0]
 		replaceRecursive(nonLeaf.parent, nonLeaf.parentIndex, nonLeaf.keys[0])
 	}
 }
