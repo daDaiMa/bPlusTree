@@ -2,6 +2,9 @@ package BplusTree
 
 func (tree *bPlusTree) Delete(key interface{}) {
 	node := tree.root
+	if tree.root == nil {
+		return
+	}
 	for {
 		if leaf, ok := node.(*treeLeafNode); ok {
 			tree.deleteFormLeaf(key, leaf)
@@ -140,7 +143,13 @@ func (tree *bPlusTree) deleteFromNonLeaf(nonLeaf *treeNonLeafNode, delete int) {
 	simpleDeleteFromNonLeaf(nonLeaf, delete)
 	if nonLeaf.parent == nil {
 		if nonLeaf.size == 0 {
-			tree.root = nil
+			tree.root = nonLeaf.subPtr[0]
+			switch nonLeaf.subPtr[0].(type) {
+			case *treeLeafNode:
+				tree.root.(*treeLeafNode).parent = nil
+			case *treeNonLeafNode:
+				tree.root.(*treeNonLeafNode).parent = nil
+			}
 		}
 		return
 	}
