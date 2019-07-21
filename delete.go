@@ -65,6 +65,9 @@ func simpleDelete(leaf *treeLeafNode, index int) {
 		leaf.data[i-1] = leaf.data[i-1]
 	}
 	leaf.size--
+	if index == 0 && leaf.parent != nil && leaf.parentIndex != -1 {
+		leaf.parent.keys[leaf.parentIndex] = leaf.keys[0]
+	}
 }
 
 func makeSiblingChoice(left, right interface{}) bool {
@@ -117,9 +120,14 @@ func shiftFromRightLeaf(leaf, right *treeLeafNode) {
 		right.keys[i] = right.keys[i+1]
 		right.data[i] = right.data[i+1]
 	}
-	right.parent.keys[right.parentIndex] = right.keys[0]
+	replaceRecursive(right.parent, right.parentIndex, right.keys[0])
 }
-
+func replaceRecursive(nonLeaf *treeNonLeafNode, index int, key interface{}) {
+	nonLeaf.keys[index] = key
+	if index == 0 && nonLeaf.parent != nil && nonLeaf.parentIndex != -1 {
+		replaceRecursive(nonLeaf.parent, nonLeaf.parentIndex, key)
+	}
+}
 func (tree *bPlusTree) mergeToLeftLeaf(left, leaf *treeLeafNode) {
 	for i := 0; i < leaf.size; i++ {
 		left.keys[left.size] = leaf.keys[i]
@@ -231,7 +239,7 @@ func shiftFromRightNonLeaf(nonLeaf, right *treeNonLeafNode) {
 			right.subPtr[i+1].(*treeNonLeafNode).parentIndex--
 		}
 	}
-	right.parent.keys[right.parentIndex] = right.keys[0]
+	replaceRecursive(right.parent, right.parentIndex, right.keys[0])
 }
 
 func shiftFromLeftNonLeaf(left, nonLeaf *treeNonLeafNode) {
@@ -271,5 +279,8 @@ func simpleDeleteFromNonLeaf(nonLeaf *treeNonLeafNode, delete int) {
 		case *treeNonLeafNode:
 			nonLeaf.subPtr[i+1].(*treeNonLeafNode).parentIndex = i
 		}
+	}
+	if delete == 0 && nonLeaf.parent != nil && nonLeaf.parentIndex != -1 {
+		nonLeaf.parent.keys[nonLeaf.parentIndex] = nonLeaf.keys[0]
 	}
 }
